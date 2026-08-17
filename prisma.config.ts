@@ -8,7 +8,10 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
+  // Migrate/introspect usam a conexão direta (sem pgbouncer) — necessário
+  // para DDL e para o shadow database do `migrate dev`. O runtime da app
+  // (src/lib/prisma.ts) usa DATABASE_URL (pooled) via @prisma/adapter-pg.
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: process.env["DIRECT_URL"],
   },
 });
