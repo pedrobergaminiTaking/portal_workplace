@@ -1,0 +1,68 @@
+import Link from "next/link";
+import { RingsPattern } from "@/components/brand/RingsPattern";
+import { ArticleCard } from "@/components/content/ArticleCard";
+import { getHighlightedArticles } from "@/lib/articles";
+import { getNavCategories } from "@/lib/categories";
+
+export default async function HomePage() {
+  const [highlighted, categories] = await Promise.all([
+    getHighlightedArticles(),
+    getNavCategories(),
+  ]);
+
+  return (
+    <div>
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <RingsPattern variant="hero" />
+        </div>
+        <div className="relative z-10 mx-auto flex max-w-6xl flex-col justify-center px-6 py-24">
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-taking-orange">
+            Portal de conhecimento
+          </p>
+          <h1 className="max-w-lg text-4xl font-bold leading-tight tracking-tight text-taking-white">
+            Take over your knowledge.
+          </h1>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-taking-black">Mais acessados</h2>
+        </div>
+        {highlighted.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {highlighted.map((article) => (
+              <ArticleCard
+                key={article.id}
+                categorySlug={article.category.slug}
+                categoryName={article.category.name}
+                slug={article.slug}
+                title={article.title}
+                readingTimeMinutes={article.readingTimeMinutes}
+                highlighted={article.highlighted}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-taking-text-muted">Nenhum artigo em destaque ainda.</p>
+        )}
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-12">
+        <h2 className="mb-6 text-lg font-bold text-taking-black">Categorias</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map((category) => (
+            <Link
+              key={category.slug}
+              href={`/${category.slug}`}
+              className="rounded-lg border border-taking-gray-border bg-taking-white p-5 font-bold text-taking-black transition-colors hover:border-taking-orange"
+            >
+              {category.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
