@@ -6,6 +6,7 @@
 
   /* Grupo Taking brand palette */
   --taking-black: #111111;
+  --taking-charcoal: #292929;
   --taking-orange: #ff5a1f;
   --taking-white: #ffffff;
   --taking-gray: #f5f5f5;
@@ -21,6 +22,7 @@
   --font-sans: var(--font-inter);
 
   --color-taking-black: var(--taking-black);
+  --color-taking-charcoal: var(--taking-charcoal);
   --color-taking-orange: var(--taking-orange);
   --color-taking-white: var(--taking-white);
   --color-taking-gray: var(--taking-gray);

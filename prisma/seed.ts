@@ -120,8 +120,25 @@ async function main() {
     },
   });
 
+  // Login por e-mail/senha para ADMIN é interino: enquanto o SSO Microsoft
+  // Entra ID (fase 2) não existe, é a única forma de acessar o modo admin.
+  const adminPassword = "taking@2026";
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+
+  await prisma.user.upsert({
+    where: { email: "admin.teste@taking.com.br" },
+    update: { passwordHash: adminPasswordHash, role: "ADMIN", isActive: true },
+    create: {
+      email: "admin.teste@taking.com.br",
+      name: "Admin de Teste",
+      role: "ADMIN",
+      passwordHash: adminPasswordHash,
+    },
+  });
+
   console.log("Seed concluído.");
-  console.log(`Usuário de teste: visualizador.teste@taking.com.br / senha: ${viewerPassword}`);
+  console.log(`Usuário de teste (VIEWER): visualizador.teste@taking.com.br / senha: ${viewerPassword}`);
+  console.log(`Usuário de teste (ADMIN): admin.teste@taking.com.br / senha: ${adminPassword}`);
 }
 
 main()

@@ -108,6 +108,8 @@ model Article {
   readingTimeMinutes Int?
   viewCount          Int           @default(0)
   publishedAt        DateTime?
+  attachmentUrl      String?
+  attachmentName     String?
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)

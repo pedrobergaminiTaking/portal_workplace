@@ -5,17 +5,20 @@ import { authConfig } from "@/auth.config";
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
-  const isPublicPath = pathname.startsWith("/login");
+  if (!pathname.startsWith("/admin")) return;
 
-  if (!isLoggedIn && !isPublicPath) {
+  if (!req.auth) {
     const loginUrl = new URL("/login", req.nextUrl);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
+
+  if (req.auth.user.role !== "EDITOR" && req.auth.user.role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/", req.nextUrl));
+  }
 });
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico|brand/).*)"],
+  matcher: ["/admin/:path*"],
 };
