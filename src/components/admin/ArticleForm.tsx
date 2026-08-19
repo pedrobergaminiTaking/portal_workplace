@@ -1,13 +1,42 @@
-import { createArticleAction } from "@/app/actions/articles";
+"use client";
+
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { createArticleAction, updateArticleAction, type ArticleActionState } from "@/app/actions/articles";
 import { Button } from "@/components/brand/Button";
 
-export function ArticleForm({
-  categories,
-}: {
+type ArticleFormProps = {
   categories: { id: string; name: string }[];
-}) {
+  article?: {
+    id: string;
+    categoryId: string;
+    title: string;
+    content: string;
+    attachmentName: string | null;
+  };
+};
+
+const initialState: ArticleActionState = {};
+
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+  const { pending } = useFormStatus();
+
   return (
-    <form action={createArticleAction} className="flex flex-col gap-4">
+    <Button type="submit" disabled={pending} className="mt-2 w-full">
+      {pending ? "Salvando..." : isEditing ? "Salvar alterações" : "Publicar"}
+    </Button>
+  );
+}
+
+export function ArticleForm({ categories, article }: ArticleFormProps) {
+  const isEditing = !!article;
+  const action = isEditing ? updateArticleAction : createArticleAction;
+  const [state, formAction] = useActionState(action, initialState);
+
+  return (
+    <form action={formAction} className="flex flex-col gap-4">
+      {isEditing && <input type="hidden" name="articleId" value={article.id} />}
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="categoryId" className="text-sm font-bold text-taking-black">
           Categoria:
@@ -16,7 +45,7 @@ export function ArticleForm({
           id="categoryId"
           name="categoryId"
           required
-          defaultValue=""
+          defaultValue={article?.categoryId ?? ""}
           className="rounded-md border border-taking-gray-border px-3 py-2 text-sm text-taking-black outline-none focus:border-taking-black"
         >
           <option value="" disabled>
@@ -39,6 +68,7 @@ export function ArticleForm({
           name="title"
           type="text"
           required
+          defaultValue={article?.title}
           className="rounded-md border border-taking-gray-border px-3 py-2 text-sm text-taking-black outline-none focus:border-taking-black"
         />
       </div>
@@ -52,6 +82,7 @@ export function ArticleForm({
           name="content"
           required
           rows={10}
+          defaultValue={article?.content}
           className="rounded-md border border-taking-gray-border px-3 py-2 text-sm text-taking-black outline-none focus:border-taking-black"
         />
       </div>
@@ -60,6 +91,11 @@ export function ArticleForm({
         <label htmlFor="attachment" className="text-sm font-bold text-taking-black">
           Anexo em PDF (opcional):
         </label>
+        {article?.attachmentName && (
+          <p className="text-xs text-taking-text-muted">
+            Anexo atual: {article.attachmentName}. Envie um novo arquivo para substituí-lo.
+          </p>
+        )}
         <input
           id="attachment"
           name="attachment"
@@ -70,9 +106,13 @@ export function ArticleForm({
         <p className="text-xs text-taking-text-faint">Máximo de 10MB.</p>
       </div>
 
-      <Button type="submit" className="mt-2 w-full">
-        Publicar
-      </Button>
+      {state.error && (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
+          {state.error}
+        </p>
+      )}
+
+      <SubmitButton isEditing={isEditing} />
     </form>
   );
 }

@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { getArticleBySlug } from "@/lib/articles";
 import { prisma } from "@/lib/prisma";
 import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
+import { EditArticleLink } from "@/components/admin/EditArticleLink";
+import { BackLink } from "@/components/ui/BackLink";
 
 export default async function ArticlePage({
   params,
@@ -27,6 +29,11 @@ export default async function ArticlePage({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-12">
+      <BackLink
+        href={`/${article.category.slug}`}
+        label={`Voltar para ${article.category.name}`}
+        className="mb-4"
+      />
       <div className="mb-6 flex items-center justify-between gap-4">
         <Link
           href={`/${article.category.slug}`}
@@ -34,7 +41,12 @@ export default async function ArticlePage({
         >
           {article.category.name}
         </Link>
-        {canManageContent && <DeleteArticleButton articleId={article.id} />}
+        {canManageContent && (
+          <div className="flex items-center gap-4">
+            <EditArticleLink articleId={article.id} />
+            <DeleteArticleButton articleId={article.id} />
+          </div>
+        )}
       </div>
       <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-taking-black">
         {article.title}
@@ -50,9 +62,7 @@ export default async function ArticlePage({
 
       {article.attachmentUrl && (
         <a
-          href={article.attachmentUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/api/anexos/${article.id}`}
           className="mt-8 inline-flex items-center gap-2 rounded-md border border-taking-gray-border px-4 py-2.5 text-sm font-bold text-taking-black transition-colors hover:border-taking-orange"
         >
           <svg

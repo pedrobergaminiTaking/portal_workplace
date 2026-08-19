@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { RingsPattern } from "@/components/brand/RingsPattern";
 import { Logo } from "@/components/brand/Logo";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { BackLink } from "@/components/ui/BackLink";
 
 export default function LoginPage() {
   return (
@@ -22,26 +22,7 @@ export default function LoginPage() {
       </div>
 
       <div className="relative flex w-full flex-col items-center justify-center bg-taking-white px-6 py-16 lg:w-1/2">
-        <Link
-          href="/"
-          className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm font-bold text-taking-text-muted transition-colors hover:text-taking-black"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-          Voltar
-        </Link>
+        <BackLink href="/" className="absolute left-6 top-6" />
         <div className="w-full max-w-sm">
           <Logo className="mb-8" />
           <h1 className="mb-1 text-xl font-bold text-taking-black">Acesso administrativo</h1>

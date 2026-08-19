@@ -86,17 +86,27 @@ async function main() {
     },
     {
       categoryId: faq.id,
-      slug: "esqueci-minha-senha",
-      title: "Esqueci minha senha, o que eu faço?",
-      excerpt: "Como recuperar o acesso à sua conta.",
+      slug: "como-entrar-em-contato",
+      title: "Como entrar em contato com a Taking",
+      excerpt: "Saiba para qual canal enviar cada tipo de dúvida ou problema.",
       content:
-        "Entre em contato com o administrador do portal para redefinir sua senha de acesso.",
+        "Para agilizar o atendimento, direcione sua mensagem para o canal certo:\n\n" +
+        "Problemas técnicos (sistemas, acessos, equipamentos): suporte@taking.com.br\n\n" +
+        "Dúvidas sobre benefícios: DHO@taking.com.br\n\n" +
+        "Dúvidas para colaboradores: e-mail a definir\n\n" +
+        "Se não tiver certeza de qual canal usar, procure o suporte técnico, que encaminha sua solicitação ao time correto.",
       status: "PUBLISHED" as const,
       highlighted: false,
       readingTimeMinutes: 1,
       publishedAt: new Date(),
     },
   ];
+
+  // Substitui o artigo placeholder do FAQ (removido explicitamente para não
+  // ficar órfão: mudar só o slug no array acima criaria um segundo artigo).
+  await prisma.article.deleteMany({
+    where: { categoryId: faq.id, slug: "esqueci-minha-senha" },
+  });
 
   for (const article of articles) {
     await prisma.article.upsert({

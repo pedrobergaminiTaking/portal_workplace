@@ -76,11 +76,11 @@ export function MobileNav({
 
           {canManageContent && (
             <Link
-              href="/admin/novo"
+              href="/admin"
               onClick={close}
               className="py-2 text-sm font-bold text-taking-orange"
             >
-              + Novo conteúdo
+              Gerenciar conteúdo
             </Link>
           )}
 

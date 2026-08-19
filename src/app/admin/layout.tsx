@@ -6,7 +6,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-taking-white">
       <header className="bg-taking-charcoal">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-3">
-          <Logo />
+          <Link href="/admin">
+            <Logo />
+          </Link>
           <Link
             href="/"
             className="text-[13px] text-[#cccccc] transition-colors hover:text-taking-white"

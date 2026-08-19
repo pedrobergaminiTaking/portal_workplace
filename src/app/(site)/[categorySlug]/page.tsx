@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getArticlesByCategory } from "@/lib/articles";
 import { ArticleCard } from "@/components/content/ArticleCard";
 import { FaqAccordion } from "@/components/content/FaqAccordion";
+import { BackLink } from "@/components/ui/BackLink";
 
 export default async function CategoryPage({
   params,
@@ -18,6 +19,7 @@ export default async function CategoryPage({
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
+      <BackLink href="/" label="Início" className="mb-6" />
       <p className="mb-2 text-xs font-bold uppercase tracking-widest text-taking-orange">
         Categoria
       </p>

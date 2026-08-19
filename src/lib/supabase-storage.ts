@@ -30,3 +30,12 @@ export async function deleteArticleAttachment(articleId: string) {
   const { error } = await supabase.storage.from(ATTACHMENTS_BUCKET).remove([`${articleId}.pdf`]);
   if (error) throw error;
 }
+
+export async function downloadArticleAttachment(articleId: string) {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.storage
+    .from(ATTACHMENTS_BUCKET)
+    .download(`${articleId}.pdf`);
+  if (error) throw error;
+  return data;
+}
