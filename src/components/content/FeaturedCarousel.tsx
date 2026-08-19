@@ -61,13 +61,6 @@ export function FeaturedCarousel({ articles }: { articles: FeaturedArticle[] }) 
             <div className="absolute inset-0">
               <RingsPattern variant="orange" />
             </div>
-            <svg
-              className="pointer-events-none absolute -bottom-20 -right-20 h-72 w-72 text-taking-black opacity-20"
-              viewBox="0 0 200 200"
-              aria-hidden="true"
-            >
-              <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" strokeWidth="22" />
-            </svg>
 
             <div className="relative z-10 max-w-md">
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-taking-black">

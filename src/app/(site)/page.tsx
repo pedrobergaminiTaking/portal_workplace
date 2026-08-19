@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RingsPattern } from "@/components/brand/RingsPattern";
+import { CategoryIcon } from "@/components/brand/CategoryIcon";
 import { FeaturedCarousel } from "@/components/content/FeaturedCarousel";
 import { getMostAccessedArticles } from "@/lib/articles";
 import { getNavCategories } from "@/lib/categories";
@@ -59,8 +60,10 @@ export default async function HomePage() {
               className="rounded-lg border border-taking-gray-border bg-taking-white p-5 transition-colors hover:border-taking-orange"
             >
               <div
-                className={`mb-3 h-8 w-8 rounded-md ${index % 2 === 0 ? "bg-taking-black" : "bg-taking-orange"}`}
-              />
+                className={`mb-3 flex h-8 w-8 items-center justify-center rounded-md ${index % 2 === 0 ? "bg-taking-black" : "bg-taking-orange"}`}
+              >
+                <CategoryIcon slug={category.slug} className="h-5 w-5 text-taking-white" />
+              </div>
               <span className="font-bold text-taking-black">{category.name}</span>
             </Link>
           ))}
