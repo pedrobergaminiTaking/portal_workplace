@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getHighlightedArticles(limit = 4) {
+export async function getMostAccessedArticles(limit = 3) {
   return prisma.article.findMany({
-    where: { status: "PUBLISHED", highlighted: true },
+    where: { status: "PUBLISHED" },
     include: { category: { select: { slug: true, name: true } } },
-    orderBy: { publishedAt: "desc" },
+    orderBy: { viewCount: "desc" },
     take: limit,
   });
 }

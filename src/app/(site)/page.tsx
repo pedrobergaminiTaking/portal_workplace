@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { RingsPattern } from "@/components/brand/RingsPattern";
-import { ArticleCard } from "@/components/content/ArticleCard";
-import { getHighlightedArticles } from "@/lib/articles";
+import { FeaturedCarousel } from "@/components/content/FeaturedCarousel";
+import { getMostAccessedArticles } from "@/lib/articles";
 import { getNavCategories } from "@/lib/categories";
 
 export default async function HomePage() {
-  const [highlighted, categories] = await Promise.all([
-    getHighlightedArticles(),
+  const [mostAccessed, categories] = await Promise.all([
+    getMostAccessedArticles(3),
     getNavCategories(),
   ]);
 
@@ -30,19 +30,19 @@ export default async function HomePage() {
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-bold text-taking-black">Mais acessados</h2>
         </div>
-        {highlighted.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {highlighted.map((article) => (
-              <ArticleCard
-                key={article.id}
-                categorySlug={article.category.slug}
-                categoryName={article.category.name}
-                slug={article.slug}
-                title={article.title}
-                readingTimeMinutes={article.readingTimeMinutes}
-                highlighted={article.highlighted}
-              />
-            ))}
+        {mostAccessed.length > 0 ? (
+          <div className="overflow-hidden rounded-xl">
+            <FeaturedCarousel
+              articles={mostAccessed.map((article) => ({
+                id: article.id,
+                categorySlug: article.category.slug,
+                categoryName: article.category.name,
+                slug: article.slug,
+                title: article.title,
+                excerpt: article.excerpt,
+                readingTimeMinutes: article.readingTimeMinutes,
+              }))}
+            />
           </div>
         ) : (
           <p className="text-sm text-taking-text-muted">Nenhum artigo em destaque ainda.</p>
@@ -52,13 +52,16 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-12">
         <h2 className="mb-6 text-lg font-bold text-taking-black">Categorias</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <Link
               key={category.slug}
               href={`/${category.slug}`}
-              className="rounded-lg border border-taking-gray-border bg-taking-white p-5 font-bold text-taking-black transition-colors hover:border-taking-orange"
+              className="rounded-lg border border-taking-gray-border bg-taking-white p-5 transition-colors hover:border-taking-orange"
             >
-              {category.name}
+              <div
+                className={`mb-3 h-8 w-8 rounded-md ${index % 2 === 0 ? "bg-taking-black" : "bg-taking-orange"}`}
+              />
+              <span className="font-bold text-taking-black">{category.name}</span>
             </Link>
           ))}
         </div>
