@@ -9,7 +9,7 @@ export async function GET(
   const { articleId } = await params;
 
   const article = await prisma.article.findUnique({
-    where: { id: articleId },
+    where: { id: articleId, status: "PUBLISHED" },
     select: { attachmentUrl: true, attachmentName: true },
   });
 

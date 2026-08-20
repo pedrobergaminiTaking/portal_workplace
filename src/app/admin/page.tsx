@@ -5,7 +5,10 @@ import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
 export default async function AdminDashboardPage() {
   const articles = await prisma.article.findMany({
     orderBy: { createdAt: "desc" },
-    include: { category: { select: { name: true, slug: true } } },
+    include: {
+      category: { select: { name: true, slug: true } },
+      companies: { include: { company: { select: { name: true } } } },
+    },
   });
 
   return (
@@ -46,6 +49,18 @@ export default async function AdminDashboardPage() {
                 >
                   {article.title}
                 </Link>
+                {article.companies.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {article.companies.map(({ company }) => (
+                      <span
+                        key={company.name}
+                        className="rounded-full bg-taking-gray px-2 py-0.5 text-[11px] font-bold text-taking-text-muted"
+                      >
+                        {company.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-4">
                 <Link

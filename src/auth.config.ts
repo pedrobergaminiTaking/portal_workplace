@@ -6,7 +6,13 @@ import type { NextAuthConfig } from "next-auth";
  * bcrypt + Prisma/pg, que não rodam no Edge, então só entram em auth.ts.
  */
 export const authConfig = {
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    // Padrão do NextAuth é 30 dias; para uma ferramenta interna de
+    // admin, 7 dias reduz a janela de exposição de uma sessão roubada
+    // ou de um usuário desativado que ainda tenha um token válido.
+    maxAge: 7 * 24 * 60 * 60,
+  },
   pages: { signIn: "/login" },
   providers: [],
   callbacks: {

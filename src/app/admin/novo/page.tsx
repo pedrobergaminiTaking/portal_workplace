@@ -1,9 +1,10 @@
 import { getCategoriesForSelect } from "@/lib/categories";
+import { getCompanies } from "@/lib/companies";
 import { ArticleForm } from "@/components/admin/ArticleForm";
 import { BackLink } from "@/components/ui/BackLink";
 
 export default async function NovoArtigoPage() {
-  const categories = await getCategoriesForSelect();
+  const [categories, companies] = await Promise.all([getCategoriesForSelect(), getCompanies()]);
 
   return (
     <div className="max-w-lg">
@@ -12,7 +13,7 @@ export default async function NovoArtigoPage() {
       <p className="mb-6 text-sm text-taking-text-muted">
         Preencha os campos abaixo para publicar um novo artigo no portal.
       </p>
-      <ArticleForm categories={categories} />
+      <ArticleForm categories={categories} companies={companies} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCategoriesForSelect } from "@/lib/categories";
+import { getCompanies } from "@/lib/companies";
 import { ArticleForm } from "@/components/admin/ArticleForm";
 import { BackLink } from "@/components/ui/BackLink";
 
@@ -11,9 +12,10 @@ export default async function EditarArtigoPage({
 }) {
   const { id } = await params;
 
-  const [article, categories] = await Promise.all([
-    prisma.article.findUnique({ where: { id } }),
+  const [article, categories, companies] = await Promise.all([
+    prisma.article.findUnique({ where: { id }, include: { companies: true } }),
     getCategoriesForSelect(),
+    getCompanies(),
   ]);
 
   if (!article) notFound();
@@ -27,12 +29,14 @@ export default async function EditarArtigoPage({
       </p>
       <ArticleForm
         categories={categories}
+        companies={companies}
         article={{
           id: article.id,
           categoryId: article.categoryId,
           title: article.title,
           content: article.content,
           attachmentName: article.attachmentName,
+          companyIds: article.companies.map((link) => link.companyId),
         }}
       />
     </div>

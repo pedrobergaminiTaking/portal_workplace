@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
+import { isRateLimited, recordFailedAttempt, clearAttempts } from "@/lib/login-rate-limit";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -17,12 +18,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password;
         if (typeof email !== "string" || typeof password !== "string") return null;
 
+        if (isRateLimited(email)) return null;
+
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !user.isActive || !user.passwordHash) return null;
+        if (!user || !user.isActive || !user.passwordHash) {
+          recordFailedAttempt(email);
+          return null;
+        }
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isValid) return null;
+        if (!isValid) {
+          recordFailedAttempt(email);
+          return null;
+        }
 
+        clearAttempts(email);
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),

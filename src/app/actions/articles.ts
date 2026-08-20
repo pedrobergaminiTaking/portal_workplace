@@ -2,32 +2,49 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { uploadArticleAttachment, deleteArticleAttachment } from "@/lib/supabase-storage";
+import { requireManager } from "@/lib/admin-auth";
+import { UserFacingError } from "@/lib/errors";
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
-
-export type ArticleActionState = { error?: string };
+const PDF_SIGNATURE = "%PDF-";
 
 function validateAttachment(attachment: File | null): attachment is File {
   if (!(attachment instanceof File) || attachment.size === 0) return false;
   if (attachment.type !== "application/pdf") {
-    throw new Error("O anexo precisa ser um arquivo PDF.");
+    throw new UserFacingError("O anexo precisa ser um arquivo PDF.");
   }
   if (attachment.size > MAX_ATTACHMENT_SIZE) {
-    throw new Error("O PDF anexado excede o limite de 10MB.");
+    throw new UserFacingError("O PDF anexado excede o limite de 10MB.");
   }
   return true;
 }
 
-async function requireManager() {
-  const session = await auth();
-  if (session?.user.role !== "EDITOR" && session?.user.role !== "ADMIN") {
-    throw new Error("Não autorizado.");
+// O tipo MIME enviado pelo navegador pode ser forjado — confere a assinatura
+// real do arquivo (%PDF-) além do Content-Type declarado.
+async function assertPdfSignature(file: File) {
+  const header = new Uint8Array(await file.slice(0, PDF_SIGNATURE.length).arrayBuffer());
+  const signature = String.fromCharCode(...header);
+  if (signature !== PDF_SIGNATURE) {
+    throw new UserFacingError("O arquivo enviado não parece ser um PDF válido.");
   }
-  return session;
+}
+
+export type ArticleActionState = { error?: string };
+
+function getSelectedCompanyIds(formData: FormData) {
+  return formData.getAll("companyIds").filter((value): value is string => typeof value === "string");
+}
+
+async function setArticleCompanies(articleId: string, companyIds: string[]) {
+  await prisma.articleCompany.deleteMany({ where: { articleId } });
+  if (companyIds.length > 0) {
+    await prisma.articleCompany.createMany({
+      data: companyIds.map((companyId) => ({ articleId, companyId })),
+    });
+  }
 }
 
 async function generateUniqueSlug(categoryId: string, title: string) {
@@ -89,6 +106,7 @@ export async function createArticleAction(
     });
 
     if (hasAttachment) {
+      await assertPdfSignature(attachment);
       const attachmentUrl = await uploadArticleAttachment(article.id, attachment);
       await prisma.article.update({
         where: { id: article.id },
@@ -96,11 +114,17 @@ export async function createArticleAction(
       });
     }
 
+    await setArticleCompanies(article.id, getSelectedCompanyIds(formData));
+
     revalidateContentPaths([category.slug]);
     redirect(`/${category.slug}/${article.slug}`);
   } catch (error) {
-    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+    if (error instanceof UserFacingError) {
       return { error: error.message };
+    }
+    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+      console.error("createArticleAction failed:", error);
+      return { error: "Não foi possível salvar o conteúdo. Tente novamente." };
     }
     throw error;
   }
@@ -136,6 +160,7 @@ export async function updateArticleAction(
     });
 
     if (hasNewAttachment) {
+      await assertPdfSignature(attachment);
       const attachmentUrl = await uploadArticleAttachment(article.id, attachment);
       await prisma.article.update({
         where: { id: article.id },
@@ -143,11 +168,17 @@ export async function updateArticleAction(
       });
     }
 
+    await setArticleCompanies(article.id, getSelectedCompanyIds(formData));
+
     revalidateContentPaths([previous.category.slug, category.slug]);
     redirect(`/${category.slug}/${article.slug}`);
   } catch (error) {
-    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+    if (error instanceof UserFacingError) {
       return { error: error.message };
+    }
+    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
+      console.error("updateArticleAction failed:", error);
+      return { error: "Não foi possível salvar o conteúdo. Tente novamente." };
     }
     throw error;
   }

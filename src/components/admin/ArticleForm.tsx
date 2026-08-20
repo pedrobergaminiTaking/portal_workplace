@@ -7,12 +7,14 @@ import { Button } from "@/components/brand/Button";
 
 type ArticleFormProps = {
   categories: { id: string; name: string }[];
+  companies: { id: string; name: string }[];
   article?: {
     id: string;
     categoryId: string;
     title: string;
     content: string;
     attachmentName: string | null;
+    companyIds: string[];
   };
 };
 
@@ -28,7 +30,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
   );
 }
 
-export function ArticleForm({ categories, article }: ArticleFormProps) {
+export function ArticleForm({ categories, companies, article }: ArticleFormProps) {
   const isEditing = !!article;
   const action = isEditing ? updateArticleAction : createArticleAction;
   const [state, formAction] = useActionState(action, initialState);
@@ -105,6 +107,28 @@ export function ArticleForm({ categories, article }: ArticleFormProps) {
         />
         <p className="text-xs text-taking-text-faint">Máximo de 10MB.</p>
       </div>
+
+      {companies.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-bold text-taking-black">Empresas (opcional):</label>
+          <p className="text-xs text-taking-text-faint">
+            Marcação interna, visível só aqui no admin — não aparece pra quem visita o portal.
+          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-md border border-taking-gray-border p-3">
+            {companies.map((company) => (
+              <label key={company.id} className="flex items-center gap-2 text-sm text-taking-black">
+                <input
+                  type="checkbox"
+                  name="companyIds"
+                  value={company.id}
+                  defaultChecked={article?.companyIds.includes(company.id)}
+                />
+                {company.name}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {state.error && (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-600">

@@ -116,7 +116,18 @@ async function main() {
     });
   }
 
-  const viewerPassword = "taking@2026";
+  // Senhas configuráveis via .env (SEED_VIEWER_PASSWORD/SEED_ADMIN_PASSWORD)
+  // — o padrão abaixo é só para desenvolvimento local. Em produção, defina
+  // essas variáveis com senhas fortes antes de rodar o seed.
+  const usingDefaultPasswords = !process.env.SEED_VIEWER_PASSWORD || !process.env.SEED_ADMIN_PASSWORD;
+  if (usingDefaultPasswords && process.env.NODE_ENV === "production") {
+    console.warn(
+      "AVISO: rodando o seed em produção sem SEED_VIEWER_PASSWORD/SEED_ADMIN_PASSWORD definidos — " +
+        "usando as senhas padrão de desenvolvimento, que são públicas no histórico do repositório.",
+    );
+  }
+
+  const viewerPassword = process.env.SEED_VIEWER_PASSWORD ?? "taking@2026";
   const passwordHash = await bcrypt.hash(viewerPassword, 10);
 
   await prisma.user.upsert({
@@ -132,7 +143,7 @@ async function main() {
 
   // Login por e-mail/senha para ADMIN é interino: enquanto o SSO Microsoft
   // Entra ID (fase 2) não existe, é a única forma de acessar o modo admin.
-  const adminPassword = "taking@2026";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "taking@2026";
   const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
 
   await prisma.user.upsert({
