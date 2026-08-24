@@ -11,7 +11,8 @@ export async function Header() {
   const canManageContent = session?.user.role === "EDITOR" || session?.user.role === "ADMIN";
 
   return (
-    <header className="sticky top-0 z-50 bg-taking-charcoal">
+    <header className="sticky top-0 z-50 bg-taking-charcoal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
+      <div className="h-[3px] bg-gradient-to-r from-taking-orange via-taking-orange/40 to-transparent" />
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
         <Link href="/" className="shrink-0">
           <Logo />
@@ -28,7 +29,7 @@ export async function Header() {
         <div className="hidden items-center gap-4 md:flex">
           <Link
             href="/buscar"
-            className="text-[13px] text-[#cccccc] transition-colors hover:text-taking-white"
+            className="text-[13px] leading-none text-[#cccccc] transition-colors hover:text-taking-white"
           >
             Buscar
           </Link>
@@ -55,10 +56,10 @@ export async function Header() {
             </Link>
           )}
           {session?.user ? (
-            <form action={logoutAction}>
+            <form action={logoutAction} className="flex items-center">
               <button
                 type="submit"
-                className="text-[13px] text-[#cccccc] transition-colors hover:text-taking-white"
+                className="m-0 inline-block appearance-none border-0 bg-transparent p-0 text-[13px] leading-none text-[#cccccc] transition-colors hover:text-taking-white"
               >
                 Sair
               </button>

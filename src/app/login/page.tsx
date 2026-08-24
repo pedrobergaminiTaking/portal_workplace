@@ -23,7 +23,7 @@ export default function LoginPage() {
 
       <div className="relative flex w-full flex-col items-center justify-center bg-taking-white px-6 py-16 lg:w-1/2">
         <BackLink href="/" className="absolute left-6 top-6" />
-        <div className="w-full max-w-sm">
+        <div className="animate-fade-in-up w-full max-w-sm">
           <Logo className="mb-8" />
           <h1 className="mb-1 text-xl font-bold text-taking-black">Acesso administrativo</h1>
           <p className="mb-6 text-sm text-taking-text-muted">

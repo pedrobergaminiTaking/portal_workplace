@@ -20,26 +20,33 @@ export default async function CategoryPage({
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <BackLink href="/" label="Início" className="mb-6" />
-      <p className="mb-2 text-xs font-bold uppercase tracking-widest text-taking-orange">
-        Categoria
-      </p>
-      <h1 className="mb-2 text-3xl font-bold tracking-tight text-taking-black">{category.name}</h1>
-      {category.description && (
-        <p className="mb-8 max-w-2xl text-sm text-taking-text-muted">{category.description}</p>
-      )}
+      <div className="animate-fade-in-up mb-10">
+        <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-taking-orange">
+          <span className="h-px w-6 bg-taking-orange" aria-hidden="true" />
+          Categoria
+        </p>
+        <h1 className="mb-2 text-3xl font-bold tracking-tight text-taking-black">
+          {category.name}
+        </h1>
+        {category.description && (
+          <p className="max-w-2xl text-sm text-taking-text-muted">{category.description}</p>
+        )}
+      </div>
 
       {articles.length === 0 ? (
         <p className="text-sm text-taking-text-muted">Nenhum artigo publicado ainda.</p>
       ) : category.layout === "FAQ" ? (
-        <FaqAccordion
-          items={articles.map((article) => ({
-            slug: article.slug,
-            title: article.title,
-            content: article.content,
-          }))}
-        />
+        <div className="animate-fade-in-up">
+          <FaqAccordion
+            items={articles.map((article) => ({
+              slug: article.slug,
+              title: article.title,
+              content: article.content,
+            }))}
+          />
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="animate-fade-in-up grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
             <ArticleCard
               key={article.id}

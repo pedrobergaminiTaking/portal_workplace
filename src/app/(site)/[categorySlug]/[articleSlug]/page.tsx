@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
 import { EditArticleLink } from "@/components/admin/EditArticleLink";
 import { BackLink } from "@/components/ui/BackLink";
+import { DownloadPdfButton } from "@/components/content/DownloadPdfButton";
 
 export default async function ArticlePage({
   params,
@@ -37,8 +38,9 @@ export default async function ArticlePage({
       <div className="mb-6 flex items-center justify-between gap-4">
         <Link
           href={`/${article.category.slug}`}
-          className="inline-block text-xs font-bold uppercase tracking-widest text-taking-orange"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-taking-orange"
         >
+          <span className="h-px w-4 bg-taking-orange" aria-hidden="true" />
           {article.category.name}
         </Link>
         {canManageContent && (
@@ -56,32 +58,14 @@ export default async function ArticlePage({
           {article.readingTimeMinutes} min de leitura
         </p>
       )}
-      <div className="whitespace-pre-line text-[15px] leading-relaxed text-taking-text-body">
+      <div className="animate-fade-in-up whitespace-pre-line text-[15px] leading-relaxed text-taking-text-body">
         {article.content}
       </div>
 
       {article.attachmentUrl && (
-        <a
-          href={`/api/anexos/${article.id}`}
-          className="mt-8 inline-flex items-center gap-2 rounded-md border border-taking-gray-border px-4 py-2.5 text-sm font-bold text-taking-black transition-colors hover:border-taking-orange"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 3v12" />
-            <path d="M7 10l5 5 5-5" />
-            <path d="M5 21h14" />
-          </svg>
-          Baixar PDF{article.attachmentName ? `: ${article.attachmentName}` : ""}
-        </a>
+        <div className="mt-10 border-t border-taking-gray-border pt-6">
+          <DownloadPdfButton articleId={article.id} attachmentName={article.attachmentName} />
+        </div>
       )}
     </article>
   );
