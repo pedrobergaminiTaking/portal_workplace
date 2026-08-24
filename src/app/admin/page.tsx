@@ -69,7 +69,7 @@ export default async function AdminDashboardPage() {
                 >
                   Editar
                 </Link>
-                <DeleteArticleButton articleId={article.id} />
+                <DeleteArticleButton articleId={article.id} redirectTo="/admin" />
               </div>
             </div>
           ))}

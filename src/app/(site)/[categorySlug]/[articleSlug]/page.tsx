@@ -44,7 +44,7 @@ export default async function ArticlePage({
         {canManageContent && (
           <div className="flex items-center gap-4">
             <EditArticleLink articleId={article.id} />
-            <DeleteArticleButton articleId={article.id} />
+            <DeleteArticleButton articleId={article.id} redirectTo={`/${article.category.slug}`} />
           </div>
         )}
       </div>

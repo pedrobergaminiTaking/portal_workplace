@@ -185,20 +185,35 @@ export async function updateArticleAction(
 }
 
 export async function deleteArticleAction(formData: FormData) {
-  await requireManager();
-
   const articleId = formData.get("articleId") as string;
-  const article = await prisma.article.findUniqueOrThrow({
-    where: { id: articleId },
-    include: { category: { select: { slug: true } } },
-  });
+  const redirectTo = (formData.get("redirectTo") as string) || "/admin";
 
-  if (article.attachmentUrl) {
-    await deleteArticleAttachment(articleId);
+  // Falhas aqui (permissão, item já excluído, storage indisponível) são
+  // logadas mas nunca propagadas — o usuário sempre volta para a tela
+  // anterior em vez de cair na tela de erro genérica do Next.js.
+  try {
+    await requireManager();
+
+    const article = await prisma.article.findUnique({
+      where: { id: articleId },
+      include: { category: { select: { slug: true } } },
+    });
+
+    if (article) {
+      if (article.attachmentUrl) {
+        try {
+          await deleteArticleAttachment(articleId);
+        } catch (error) {
+          console.error("Falha ao remover anexo do Storage:", error);
+        }
+      }
+
+      await prisma.article.delete({ where: { id: articleId } });
+      revalidateContentPaths([article.category.slug]);
+    }
+  } catch (error) {
+    console.error("deleteArticleAction failed:", error);
   }
 
-  await prisma.article.delete({ where: { id: articleId } });
-
-  revalidateContentPaths([article.category.slug]);
-  redirect(`/${article.category.slug}`);
+  redirect(redirectTo);
 }
