@@ -12,7 +12,8 @@
     "import:policies": "tsx scripts/import-policies.ts",
     "import:guides": "tsx scripts/import-guides.ts",
     "import:policies2": "tsx scripts/import-policies-2.ts",
-    "import:faq": "tsx scripts/import-faq.ts"
+    "import:faq": "tsx scripts/import-faq.ts",
+    "import:processes": "tsx scripts/import-processes.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
