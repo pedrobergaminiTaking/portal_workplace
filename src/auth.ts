@@ -33,7 +33,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         clearAttempts(email);
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          companyId: user.companyId,
+        };
       },
     }),
     // Microsoft Entra ID (SSO para EDITOR/ADMIN) entra aqui na Fase 2,

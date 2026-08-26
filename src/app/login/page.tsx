@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { RingsPattern } from "@/components/brand/RingsPattern";
 import { Logo } from "@/components/brand/Logo";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -25,13 +26,21 @@ export default function LoginPage() {
         <BackLink href="/" className="absolute left-6 top-6" />
         <div className="animate-fade-in-up w-full max-w-sm">
           <Logo className="mb-8" />
-          <h1 className="mb-1 text-xl font-bold text-taking-black">Acesso administrativo</h1>
+          <h1 className="mb-1 text-xl font-bold text-taking-black">Entrar</h1>
           <p className="mb-6 text-sm text-taking-text-muted">
-            Login restrito à equipe editorial. Use o e-mail e senha fornecidos pelo administrador do portal.
+            Acesse com o seu e-mail{" "}
+            <strong className="text-taking-black">corporativo</strong>, o mesmo que
+            você usa no trabalho, e sua senha.
           </p>
           <Suspense>
             <LoginForm />
           </Suspense>
+          <p className="mt-6 text-center text-sm text-taking-text-muted">
+            Ainda não tem uma conta?{" "}
+            <Link href="/cadastro" className="font-bold text-taking-black hover:underline">
+              Criar conta
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -112,7 +112,9 @@ export function ArticleForm({ categories, companies, article }: ArticleFormProps
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-bold text-taking-black">Empresas (opcional):</label>
           <p className="text-xs text-taking-text-faint">
-            Marcação interna, visível só aqui no admin — não aparece pra quem visita o portal.
+            Controla quem vê este conteúdo: se marcado, só usuários vinculados a uma dessas
+            empresas (pelo domínio do e-mail) conseguem acessá-lo. Sem nenhuma marcação, o
+            artigo fica visível a qualquer usuário logado.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-md border border-taking-gray-border p-3">
             {companies.map((company) => (

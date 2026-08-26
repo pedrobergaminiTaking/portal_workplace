@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { isManagerRole } from "@/lib/roles";
 import { Logo } from "@/components/brand/Logo";
 
 // Reforço de defesa em profundidade: o middleware (src/middleware.ts) já
@@ -9,7 +10,7 @@ import { Logo } from "@/components/brand/Logo";
 // admin acessíveis sem autorização.
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (session?.user.role !== "EDITOR" && session?.user.role !== "ADMIN") {
+  if (!isManagerRole(session?.user.role)) {
     redirect("/login");
   }
 

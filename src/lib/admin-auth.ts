@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { UserFacingError } from "@/lib/errors";
+import { isManagerRole } from "@/lib/roles";
 
 /**
  * Verifica a sessão E revalida papel/isActive direto no banco antes de
@@ -10,7 +11,7 @@ import { UserFacingError } from "@/lib/errors";
  */
 export async function requireManager() {
   const session = await auth();
-  if (session?.user.role !== "EDITOR" && session?.user.role !== "ADMIN") {
+  if (!isManagerRole(session?.user.role)) {
     throw new UserFacingError("Não autorizado.");
   }
 
@@ -18,7 +19,7 @@ export async function requireManager() {
     where: { id: session.user.id },
     select: { role: true, isActive: true },
   });
-  if (!user || !user.isActive || (user.role !== "EDITOR" && user.role !== "ADMIN")) {
+  if (!user || !user.isActive || !isManagerRole(user.role)) {
     throw new UserFacingError("Não autorizado.");
   }
 

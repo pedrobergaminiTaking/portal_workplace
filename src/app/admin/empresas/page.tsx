@@ -11,8 +11,9 @@ export default async function EmpresasPage() {
       <BackLink href="/admin" label="Voltar à lista" className="mb-6" />
       <h1 className="mb-1 text-xl font-bold text-taking-black">Empresas</h1>
       <p className="mb-6 text-sm text-taking-text-muted">
-        Cadastre empresas para marcar internamente qual conteúdo pertence a qual cliente. Essa
-        marcação é visível só aqui no admin — nunca aparece para quem visita o portal.
+        Cadastre as empresas-cliente e, se souber, o domínio de e-mail delas. Ao marcar um
+        artigo com uma empresa, só usuários vinculados a ela (pelo domínio do e-mail) passam a
+        enxergar esse conteúdo.
       </p>
 
       <div className="mb-8 rounded-md border border-taking-gray-border p-4">
@@ -27,7 +28,12 @@ export default async function EmpresasPage() {
         <div className="flex flex-col divide-y divide-taking-gray-border rounded-md border border-taking-gray-border">
           {companies.map((company) => (
             <div key={company.id} className="flex items-center justify-between gap-4 px-4 py-3">
-              <p className="font-bold text-taking-black">{company.name}</p>
+              <div>
+                <p className="font-bold text-taking-black">{company.name}</p>
+                {company.domain && (
+                  <p className="text-xs text-taking-text-faint">{company.domain}</p>
+                )}
+              </div>
               <DeleteCompanyButton companyId={company.id} />
             </div>
           ))}

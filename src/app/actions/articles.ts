@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { uploadArticleAttachment, deleteArticleAttachment } from "@/lib/supabase-storage";
 import { requireManager } from "@/lib/admin-auth";
-import { UserFacingError } from "@/lib/errors";
+import { UserFacingError, toActionError } from "@/lib/errors";
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 const PDF_SIGNATURE = "%PDF-";
@@ -55,6 +55,7 @@ async function generateUniqueSlug(categoryId: string, title: string) {
   while (
     await prisma.article.findUnique({
       where: { categoryId_slug: { categoryId, slug } },
+      select: { id: true },
     })
   ) {
     slug = `${base}-${attempt}`;
@@ -90,7 +91,10 @@ export async function createArticleAction(
     }
     const hasAttachment = validateAttachment(attachment);
 
-    const category = await prisma.category.findUniqueOrThrow({ where: { id: categoryId } });
+    const category = await prisma.category.findUniqueOrThrow({
+      where: { id: categoryId },
+      select: { slug: true },
+    });
     const slug = await generateUniqueSlug(categoryId, title);
 
     const article = await prisma.article.create({
@@ -119,14 +123,7 @@ export async function createArticleAction(
     revalidateContentPaths([category.slug]);
     redirect(`/${category.slug}/${article.slug}`);
   } catch (error) {
-    if (error instanceof UserFacingError) {
-      return { error: error.message };
-    }
-    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
-      console.error("createArticleAction failed:", error);
-      return { error: "Não foi possível salvar o conteúdo. Tente novamente." };
-    }
-    throw error;
+    return toActionError(error, "Não foi possível salvar o conteúdo. Tente novamente.", "createArticleAction");
   }
 }
 
@@ -150,9 +147,12 @@ export async function updateArticleAction(
 
     const previous = await prisma.article.findUniqueOrThrow({
       where: { id: articleId },
-      include: { category: { select: { slug: true } } },
+      select: { category: { select: { slug: true } } },
     });
-    const category = await prisma.category.findUniqueOrThrow({ where: { id: categoryId } });
+    const category = await prisma.category.findUniqueOrThrow({
+      where: { id: categoryId },
+      select: { slug: true },
+    });
 
     const article = await prisma.article.update({
       where: { id: articleId },
@@ -173,14 +173,7 @@ export async function updateArticleAction(
     revalidateContentPaths([previous.category.slug, category.slug]);
     redirect(`/${category.slug}/${article.slug}`);
   } catch (error) {
-    if (error instanceof UserFacingError) {
-      return { error: error.message };
-    }
-    if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
-      console.error("updateArticleAction failed:", error);
-      return { error: "Não foi possível salvar o conteúdo. Tente novamente." };
-    }
-    throw error;
+    return toActionError(error, "Não foi possível salvar o conteúdo. Tente novamente.", "updateArticleAction");
   }
 }
 
@@ -196,7 +189,7 @@ export async function deleteArticleAction(formData: FormData) {
 
     const article = await prisma.article.findUnique({
       where: { id: articleId },
-      include: { category: { select: { slug: true } } },
+      select: { attachmentUrl: true, category: { select: { slug: true } } },
     });
 
     if (article) {

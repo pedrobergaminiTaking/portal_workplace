@@ -5,9 +5,13 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { requireManager } from "@/lib/admin-auth";
-import { UserFacingError } from "@/lib/errors";
+import { toActionError } from "@/lib/errors";
 
 export type CompanyActionState = { error?: string };
+
+// Formato básico de domínio (ex: davita.com, taking.com.br) — não valida
+// existência real, só evita erros óbvios de digitação.
+const DOMAIN_PATTERN = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 export async function createCompanyAction(
   _prevState: CompanyActionState,
@@ -21,19 +25,25 @@ export async function createCompanyAction(
       return { error: "Nome da empresa é obrigatório." };
     }
 
-    await prisma.company.create({ data: { name, slug: slugify(name) } });
+    const domainInput = (formData.get("domain") as string)?.trim().toLowerCase();
+    const domain = domainInput || null;
+    if (domain && !DOMAIN_PATTERN.test(domain)) {
+      return { error: "Domínio inválido. Use o formato empresa.com." };
+    }
+
+    await prisma.company.create({ data: { name, slug: slugify(name), domain } });
 
     revalidatePath("/admin/empresas");
     return {};
   } catch (error) {
-    if (error instanceof UserFacingError) {
-      return { error: error.message };
-    }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const target = error.meta?.target;
+      if (Array.isArray(target) && target.includes("domain")) {
+        return { error: "Já existe uma empresa cadastrada com esse domínio." };
+      }
       return { error: "Já existe uma empresa com esse nome." };
     }
-    console.error("createCompanyAction failed:", error);
-    return { error: "Não foi possível salvar a empresa. Tente novamente." };
+    return toActionError(error, "Não foi possível salvar a empresa. Tente novamente.", "createCompanyAction");
   }
 }
 

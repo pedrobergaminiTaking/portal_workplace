@@ -19,6 +19,7 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.companyId = user.companyId;
       }
       return token;
     },
@@ -26,6 +27,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role as "VIEWER" | "EDITOR" | "ADMIN";
+        session.user.companyId = (token.companyId as string | null | undefined) ?? null;
       }
       return session;
     },

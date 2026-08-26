@@ -32,11 +32,17 @@ model User {
   emailVerified DateTime?
   image        String?
 
-  // VIEWERs autenticam com e-mail/senha, criados manualmente por um admin.
+  // VIEWERs autenticam com e-mail/senha via cadastro público em /cadastro.
   // EDITOR/ADMIN autenticam via SSO Microsoft Entra ID (sem passwordHash).
   role         Role      @default(VIEWER)
   passwordHash String?
   isActive     Boolean   @default(true)
+
+  // Empresa inferida do domínio do e-mail no cadastro; usada para filtrar
+  // quais artigos o usuário pode ver. Null para e-mails do domínio interno
+  // (@taking.com.br), que já enxergam tudo sem precisar de vínculo.
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,15 +150,17 @@ model ArticleTag {
   @@id([articleId, tagId])
 }
 
-// Empresas-cliente usadas para marcar internamente qual conteúdo pertence a
-// qual empresa (ex: CVC). Visível só no admin — nunca exposta nas páginas
-// públicas do portal.
+// Empresas-cliente: além de marcar no admin qual conteúdo pertence a qual
+// empresa (ex: CVC), o campo `domain` casa o domínio de e-mail do usuário
+// no cadastro com essa empresa, controlando a visibilidade real do conteúdo.
 model Company {
-  id   String @id @default(cuid())
-  name String @unique
-  slug String @unique
+  id     String  @id @default(cuid())
+  name   String  @unique
+  slug   String  @unique
+  domain String? @unique
 
   articles ArticleCompany[]
+  users    User[]
 
   createdAt DateTime @default(now())
 }

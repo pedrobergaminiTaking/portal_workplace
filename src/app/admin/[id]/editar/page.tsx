@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getArticleById } from "@/lib/articles";
 import { getCategoriesForSelect } from "@/lib/categories";
 import { getCompanies } from "@/lib/companies";
 import { ArticleForm } from "@/components/admin/ArticleForm";
@@ -13,7 +13,7 @@ export default async function EditarArtigoPage({
   const { id } = await params;
 
   const [article, categories, companies] = await Promise.all([
-    prisma.article.findUnique({ where: { id }, include: { companies: true } }),
+    getArticleById(id),
     getCategoriesForSelect(),
     getCompanies(),
   ]);

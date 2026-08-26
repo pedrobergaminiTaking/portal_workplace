@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { getNavCategories } from "@/lib/categories";
+import { isManagerRole } from "@/lib/roles";
 import { logoutAction } from "@/app/actions/auth";
 import { Logo } from "@/components/brand/Logo";
 import { NavLink } from "@/components/layout/NavLink";
@@ -8,7 +9,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 
 export async function Header() {
   const [session, categories] = await Promise.all([auth(), getNavCategories()]);
-  const canManageContent = session?.user.role === "EDITOR" || session?.user.role === "ADMIN";
+  const canManageContent = isManagerRole(session?.user.role);
 
   return (
     <header className="sticky top-0 z-50 bg-taking-charcoal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
@@ -65,26 +66,34 @@ export async function Header() {
               </button>
             </form>
           ) : (
-            <Link
-              href="/login"
-              aria-label="Acesso administrativo"
-              className="text-[#cccccc] transition-colors hover:text-taking-white"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+            <>
+              <Link
+                href="/cadastro"
+                className="text-[13px] leading-none text-[#cccccc] transition-colors hover:text-taking-white"
               >
-                <rect x="5" y="11" width="14" height="9" rx="2" />
-                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-              </svg>
-            </Link>
+                Criar conta
+              </Link>
+              <Link
+                href="/login"
+                aria-label="Entrar"
+                className="text-[#cccccc] transition-colors hover:text-taking-white"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="5" y="11" width="14" height="9" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                </svg>
+              </Link>
+            </>
           )}
         </div>
 

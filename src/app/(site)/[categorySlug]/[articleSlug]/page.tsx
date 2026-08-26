@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { getArticleBySlug } from "@/lib/articles";
-import { prisma } from "@/lib/prisma";
+import { getArticleBySlug, incrementArticleViewCount } from "@/lib/articles";
+import { isManagerRole } from "@/lib/roles";
 import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
 import { EditArticleLink } from "@/components/admin/EditArticleLink";
 import { BackLink } from "@/components/ui/BackLink";
@@ -21,12 +21,9 @@ export default async function ArticlePage({
   ]);
   if (!article) notFound();
 
-  await prisma.article.update({
-    where: { id: article.id },
-    data: { viewCount: { increment: 1 } },
-  });
+  await incrementArticleViewCount(article.id);
 
-  const canManageContent = session?.user.role === "EDITOR" || session?.user.role === "ADMIN";
+  const canManageContent = isManagerRole(session?.user.role);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-12">

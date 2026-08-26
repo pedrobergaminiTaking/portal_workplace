@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { getArticlesByCategory } from "@/lib/articles";
+import { getCategoryBySlug } from "@/lib/categories";
 import { ArticleCard } from "@/components/content/ArticleCard";
 import { FaqAccordion } from "@/components/content/FaqAccordion";
 import { BackLink } from "@/components/ui/BackLink";
@@ -12,10 +12,11 @@ export default async function CategoryPage({
 }) {
   const { categorySlug } = await params;
 
-  const category = await prisma.category.findUnique({ where: { slug: categorySlug } });
+  const [category, articles] = await Promise.all([
+    getCategoryBySlug(categorySlug),
+    getArticlesByCategory(categorySlug),
+  ]);
   if (!category) notFound();
-
-  const articles = await getArticlesByCategory(categorySlug);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">

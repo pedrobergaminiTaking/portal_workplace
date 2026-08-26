@@ -1,15 +1,10 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getAllArticlesForAdmin } from "@/lib/articles";
 import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
+import { EditArticleLink } from "@/components/admin/EditArticleLink";
 
 export default async function AdminDashboardPage() {
-  const articles = await prisma.article.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: { select: { name: true, slug: true } },
-      companies: { include: { company: { select: { name: true } } } },
-    },
-  });
+  const articles = await getAllArticlesForAdmin();
 
   return (
     <div>
@@ -63,12 +58,7 @@ export default async function AdminDashboardPage() {
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-4">
-                <Link
-                  href={`/admin/${article.id}/editar`}
-                  className="text-xs font-bold uppercase tracking-widest text-taking-text-faint transition-colors hover:text-taking-orange"
-                >
-                  Editar
-                </Link>
+                <EditArticleLink articleId={article.id} />
                 <DeleteArticleButton articleId={article.id} redirectTo="/admin" />
               </div>
             </div>

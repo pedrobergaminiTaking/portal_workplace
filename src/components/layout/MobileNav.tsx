@@ -94,13 +94,22 @@ export function MobileNav({
               </button>
             </form>
           ) : (
-            <Link
-              href="/login"
-              onClick={close}
-              className="py-2 text-sm text-[#cccccc] transition-colors hover:text-taking-white"
-            >
-              Acesso administrativo
-            </Link>
+            <>
+              <Link
+                href="/login"
+                onClick={close}
+                className="py-2 text-sm text-[#cccccc] transition-colors hover:text-taking-white"
+              >
+                Entrar
+              </Link>
+              <Link
+                href="/cadastro"
+                onClick={close}
+                className="py-2 text-sm font-bold text-taking-orange"
+              >
+                Criar conta
+              </Link>
+            </>
           )}
         </div>
       )}

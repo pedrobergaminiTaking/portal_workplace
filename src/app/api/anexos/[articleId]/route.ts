@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { buildCompanyVisibilityWhere } from "@/lib/visibility";
 import { downloadArticleAttachment } from "@/lib/supabase-storage";
 
 export async function GET(
@@ -8,8 +10,11 @@ export async function GET(
 ) {
   const { articleId } = await params;
 
-  const article = await prisma.article.findUnique({
-    where: { id: articleId, status: "PUBLISHED" },
+  const session = await auth();
+  const visibilityWhere = buildCompanyVisibilityWhere(session);
+
+  const article = await prisma.article.findFirst({
+    where: { id: articleId, status: "PUBLISHED", ...visibilityWhere },
     select: { attachmentUrl: true, attachmentName: true },
   });
 
@@ -30,10 +35,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    // Diagnóstico temporário: expõe a mensagem real do erro para investigar
-    // o 500 em produção. Remover assim que a causa for identificada.
-    console.error("downloadArticleAttachment failed:", error);
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ message: `DEBUG: ${message}` }, { status: 500 });
+    console.error("GET /api/anexos failed:", error);
+    return NextResponse.json({ message: "Não foi possível baixar o anexo." }, { status: 500 });
   }
 }
